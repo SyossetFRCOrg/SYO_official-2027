@@ -260,6 +260,8 @@ public class RobotContainer {
         }
 
         public static double getFactor() {
+                if (Superstructure.getDesiredSuperState() == SuperState.INTAKING) return 0.4;
+                else if (Superstructure.getDesiredSuperState() == SuperState.SHOOTING) return 0.1;
                 return factor;
         }
 
