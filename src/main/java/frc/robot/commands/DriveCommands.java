@@ -78,7 +78,7 @@ public class DriveCommands {
               ySupplier.getAsDouble());
 
           // Apply rotation deadband
-          double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble()* RobotContainer.getFactor(), DEADBAND);
+          double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble()* RobotContainer.getTurnFactor(), DEADBAND);
 
           // Square rotation value for more precise control
           omega = Math.copySign(omega * omega, omega);
@@ -86,9 +86,9 @@ public class DriveCommands {
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds = new ChassisSpeeds(
               linearVelocity.getX()
-                  * RobotState.getInstance().getModuleLimits().maxDriveVelocity() * RobotContainer.getFactor(),
+                  * RobotState.getInstance().getModuleLimits().maxDriveVelocity() * RobotContainer.getXYFactor(),
               linearVelocity.getY()
-                  * RobotState.getInstance().getModuleLimits().maxDriveVelocity() * RobotContainer.getFactor(),
+                  * RobotState.getInstance().getModuleLimits().maxDriveVelocity() * RobotContainer.getXYFactor(),
               omega * TunerConstants.driveConfig.maxAngularVelocity());
           boolean isFlipped = FieldConstants.getAlliance() == Alliance.Red;
               

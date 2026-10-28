@@ -57,7 +57,7 @@ public class RobotContainer {
         private final XboxController controller = new XboxController(0);
         private final XboxController buttonboard = new XboxController(1);
 
-        private static double factor = 1;
+        private static double turnFactor = 1, xyFactor = 1;
         
         // private final UsbCamera usbCam;
 
@@ -175,8 +175,14 @@ public class RobotContainer {
 
 
                 Trigger SlowTurnOnLeftTrigger = new Trigger(() -> (controller.getLeftTriggerAxis() > 0.5));
-                SlowTurnOnLeftTrigger.onTrue(Commands.runOnce(() -> factor = .4));
-                SlowTurnOnLeftTrigger.onFalse(Commands.runOnce(() -> factor = 1));
+                SlowTurnOnLeftTrigger.onTrue(Commands.runOnce(() -> {
+                        turnFactor = .4;
+                        xyFactor = .4;
+                }));
+                SlowTurnOnLeftTrigger.onFalse(Commands.runOnce(() -> {
+                        turnFactor = 1;
+                        xyFactor = 1;
+                }));
 
                 Trigger ShootOnRightTrigger = new Trigger(
                                 () -> (controller.getRightTriggerAxis() > 0.5 && !(controller.getRawButton(5))));
@@ -259,10 +265,14 @@ public class RobotContainer {
                 return superstructure;
         }
 
-        public static double getFactor() {
+        public static double getTurnFactor() {
+                return turnFactor;
+        }
+
+        public static double getXYFactor() {
                 if (Superstructure.getDesiredSuperState() == SuperState.INTAKING) return 0.4;
-                else if (Superstructure.getDesiredSuperState() == SuperState.SHOOTING) return 0.1;
-                return factor;
+                else if (Superstructure.getDesiredSuperState() == SuperState.SHOOTING) return 1;
+                return xyFactor;
         }
 
         public Command moveArmRepeatedly() {

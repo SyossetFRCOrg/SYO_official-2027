@@ -31,7 +31,7 @@ public class Intake extends SubsystemBase {
     private @Getter Substate currentSubstate = Substate.STOPPED;
     private @Setter Substate desiredSubstate = Substate.STOPPED;
 
-    private LoggedTunableNumber intakeSpeed = new LoggedTunableNumber("Intake/IntakeSpeed", 7);
+    private LoggedTunableNumber intakeSpeed = new LoggedTunableNumber("Intake/IntakeSpeed",9);
 
     private Substate handleIntakeTransitions() {
         return desiredSubstate;

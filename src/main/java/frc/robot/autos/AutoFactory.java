@@ -299,6 +299,7 @@ class AutoFactory {
     return c;
   }
 
+  // THIS IS THE RIGHT PATH - RSTART_NC_S2
   Command RCenter_RBump_S2(Location Start) {
     PathPlannerPath StartToLCenter = loadSegment(Start.getAllianceName(), Location.NC.getAllianceName());
     PathPlannerPath LCenterToS3 = loadSegment(Location.NC.getAllianceName(), Location.RBUMP.getAllianceName()); //Goes to S2 but we pass in LBUMP to denote our exit path
@@ -323,6 +324,7 @@ class AutoFactory {
 
   }
 
+  // THIS IS THE LEFT PATH - LSTART_NA_S3_DEPOT_S3
   Command LCenter_LBump_S3_Depot_S3(Location Start) {
     PathPlannerPath StartToLCenter = loadSegment(Start.getAllianceName(), Location.NA.getAllianceName());
     PathPlannerPath LCenterToS3 = loadSegment(Location.NA.getAllianceName(), Location.LBUMP.getAllianceName()); //Goes to S3 but we pass in LBUMP to denote our exit path
