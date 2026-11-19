@@ -5,7 +5,10 @@ import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 import static frc.robot.subsystems.vision.VisionConstants.camera2Name;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -83,10 +86,10 @@ public class RobotContainer {
                 //Cameras are disabled bc there is no field for this branch
                 vision = new Vision(
                                 drive::addVisionMeasurement,
-                                drive);
-                                // new VisionIOLimelight(camera0Name, drive::getRotation),
-                                // new VisionIOLimelight(camera1Name, drive::getRotation),
-                                // new VisionIOLimelight(camera2Name, drive::getRotation));
+                                drive,
+                                new VisionIOLimelight(camera0Name, drive::getRotation),
+                                new VisionIOLimelight(camera1Name, drive::getRotation),
+                                new VisionIOLimelight(camera2Name, drive::getRotation));
 
                 superstructure = new Superstructure(this, drive, indexer, intake, shooter);
 
@@ -148,30 +151,31 @@ public class RobotContainer {
                                 .alongWith(superstructure.MoveArmToPosition(1.4)));
                 IntakeOnRightBumper.onFalse(superstructure.setDesiredSuperStateCommand(SuperState.DRIVING));
                 
-                // Trigger AutoAlignPreShooting  = new Trigger(() -> 
-                //                                 (controller.getRightBumperButton() && 
-                //                                 !DriveCommands.isAimedAtTarget(drive, 
-                //                                 () -> drive.getPose().relativeTo(FieldConstants.getHubPose().toPose2d())
-                //                                 .getTranslation().getAngle().plus(Rotation2d.k180deg))));
-                // AutoAlignPreShooting.onTrue(new InstantCommand(() -> RobotState.getInstance().setAutoAiming(true)));
-                // AutoAlignPreShooting.whileTrue(superstructure.setDesiredSuperStateCommand(SuperState.SHOOTINGPREPARE)
-                //                 .alongWith(superstructure.AimShooting(controller, () -> FieldConstants.getHubPose().toPose2d())));
-                // // AutoAlignPreShooting.onFalse(new InstantCommand(() -> RobotState.getInstance().setAutoAiming(false)).alongWith(superstructure.setDesiredSuperStateCommand(SuperState.DRIVING)));
+                Trigger AutoAlignPreShootingOnY  = new Trigger(() -> 
+                                                (controller.getYButton() && Math.abs(controller.getLeftX()) < 0.05 && Math.abs(controller.getLeftY()) < 0.05 && Math.abs(controller.getRightX()) < 0.05 &&
+                                                !DriveCommands.isAimedAtTarget(drive, 
+                                                () -> drive.getPose().relativeTo(FieldConstants.getHubPose().transformBy(new Transform3d(-0.2, 0, 0, new Rotation3d(new Rotation2d(0)))).toPose2d())
+                                                .getTranslation().getAngle().plus(Rotation2d.k180deg))));
+                AutoAlignPreShootingOnY.onTrue(new InstantCommand(() -> RobotState.getInstance().setAutoAiming(true)));
+                AutoAlignPreShootingOnY.whileTrue(superstructure.setDesiredSuperStateCommand(SuperState.SHOOTINGPREPARE)
+                                .alongWith(superstructure.AimShooting(controller, () -> FieldConstants.getHubPose().toPose2d())));
+                // AutoAlignPreShooting.onFalse(new InstantCommand(() -> RobotState.getInstance().setAutoAiming(false)).alongWith(superstructure.setDesiredSuperStateCommand(SuperState.DRIVING)));
 
-                // Trigger AutoAlignThenShootTrigger = new Trigger(() -> 
-                //                                 (controller.getRightBumperButton() && 
-                //                                 DriveCommands.isAimedAtTarget(drive, 
-                //                                 () -> drive.getPose().relativeTo(FieldConstants.getHubPose().toPose2d())
-                //                                 .getTranslation().getAngle().plus(Rotation2d.k180deg))));
-                // AutoAlignThenShootTrigger.whileTrue(superstructure.AimShooting(controller, () -> FieldConstants.getHubPose().toPose2d())
-                //                 .alongWith(superstructure.setDesiredSuperStateCommand(SuperState.SHOOTING)));
+                Trigger AutoAlignThenShootTriggerOnY = new Trigger(() -> 
+                                                (controller.getYButton() && 
+                                                DriveCommands.isAimedAtTarget(drive, 
+                                                () -> drive.getPose().relativeTo(FieldConstants.getHubPose().transformBy(new Transform3d(-0.2, 0, 0, new Rotation3d(new Rotation2d(0)))).toPose2d())
+                                                .getTranslation().getAngle().plus(Rotation2d.k180deg))));
+                AutoAlignThenShootTriggerOnY.whileTrue(superstructure.AimShooting(controller, () -> FieldConstants.getHubPose().transformBy(new Transform3d(-0.2, 0, 0, new Rotation3d(new Rotation2d(0)))).toPose2d())
+                                .alongWith(superstructure.setDesiredSuperStateCommand(SuperState.SHOOTING).andThen(new RepeatCommand(moveArmRepeatedly()))));
                 
 
-                // //No longer automatically 
-                // // AutoAlignThenShootTrigger.whileTrue(superstructure.MoveArmToPosition(0)
-                // //                 .withDeadline(Commands.waitSeconds(0.6)).andThen(superstructure.MoveArmToPosition(1.3).withDeadline(Commands.waitSeconds(0.6))).repeatedly());
-                // AutoAlignThenShootTrigger.onFalse(superstructure.setDesiredSuperStateCommand(SuperState.DRIVING)
-                //                                 .alongWith(new InstantCommand(() -> RobotState.getInstance().setAutoAiming(false))));
+                //No longer automatically
+
+                // AutoAlignThenShootTrigger.whileTrue(superstructure.MoveArmToPosition(0)
+                //                 .withDeadline(Commands.waitSeconds(0.6)).andThen(superstructure.MoveArmToPosition(1.3).withDeadline(Commands.waitSeconds(0.6))).repeatedly());
+                AutoAlignThenShootTriggerOnY.onFalse(superstructure.setDesiredSuperStateCommand(SuperState.DRIVING)
+                                                .alongWith(new InstantCommand(() -> RobotState.getInstance().setAutoAiming(false))).andThen(superstructure.MoveArmToPosition(1.5)));
 
 
                 Trigger SlowTurnOnLeftTrigger = new Trigger(() -> (controller.getLeftTriggerAxis() > 0.5));
@@ -270,9 +274,9 @@ public class RobotContainer {
         }
 
         public static double getXYFactor() {
-                if (Superstructure.getDesiredSuperState() == SuperState.INTAKING) return 0.4;
+                if (Superstructure.getDesiredSuperState() == SuperState.INTAKING) return 0.6;
                 else if (Superstructure.getDesiredSuperState() == SuperState.SHOOTING) return 1;
-                return xyFactor;
+                return xyFactor == 1 ? 0.8 : xyFactor;
         }
 
         public Command moveArmRepeatedly() {

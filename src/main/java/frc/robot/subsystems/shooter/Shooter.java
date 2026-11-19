@@ -23,7 +23,7 @@ public class Shooter extends SubsystemBase {
     private final ShooterIO shooterIO;
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
 
-    private static double shooterVelocity = 62, shooterChange = 0;
+    private static double shooterVelocity = 59, shooterChange = -1;
 
 
     private @Getter Substate currentSubstate = Substate.STOPPED;
@@ -79,7 +79,7 @@ public class Shooter extends SubsystemBase {
         if(currentSubstate == Substate.ACTIVE || currentSubstate == Substate.PREPARING)
         {
             //Regression is commented out for now
-            // shooterVelocity = ShooterConstants.shooterSpeedMapScoring.get(distance);
+            shooterVelocity = ShooterConstants.shooterSpeedMapScoring.get(distance);
         }
 
     }

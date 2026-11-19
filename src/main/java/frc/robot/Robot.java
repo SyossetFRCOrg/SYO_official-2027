@@ -128,7 +128,7 @@ public class Robot extends LoggedRobot {
     // autonomousCommand.schedule();
     // }
     robotContainer.getSuperstructure().setDesiredSuperStateCommand(SuperState.DRIVING);
-    robotContainer.getSuperstructure().getShooter().setShooterChangeVelocity(2);
+    //robotContainer.getSuperstructure().getShooter().setShooterChangeVelocity(2);
     autoChooser.getSelectedCommand().ifPresent(CommandScheduler.getInstance()::schedule);
     
   }

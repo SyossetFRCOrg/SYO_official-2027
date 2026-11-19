@@ -44,18 +44,14 @@ public class ShooterConstants {
 
     //TODO Retune with new values in cafeteria
     static {
-        shooterSpeedMapScoring.put(3.18, 72.0);
-        shooterSpeedMapScoring.put(3.73, 79.0);
-        shooterSpeedMapScoring.put(3.7, 78.0);
-        shooterSpeedMapScoring.put(2.83, 71.0);
-        shooterSpeedMapScoring.put(3.5, 74.0);
-        shooterSpeedMapScoring.put(2.67, 70.0);
-        shooterSpeedMapScoring.put(4.0, 80.0);
-        shooterSpeedMapScoring.put(3.17, 72.0);
-        shooterSpeedMapScoring.put(2.45, 66.0);
-        shooterSpeedMapScoring.put(3.3, 72.0);
-        shooterSpeedMapScoring.put(2.02, 67.0);
-        
+        shooterSpeedMapScoring.put(2.93, 59.0);
+        shooterSpeedMapScoring.put(3.81, 67.0);
+        shooterSpeedMapScoring.put(3.886, 70.0);
+        shooterSpeedMapScoring.put(2.609, 58.0);
+        shooterSpeedMapScoring.put(3.32, 62.0);
+        shooterSpeedMapScoring.put(3.56, 65.0);
+        shooterSpeedMapScoring.put(3.13, 61.0);
+        shooterSpeedMapScoring.put(2.78, 58.0);
     }
 
     public static final double ferrySpeed = 80.0;
