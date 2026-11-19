@@ -2,17 +2,21 @@ package frc.robot.subsystems.vision;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.wpilib.math.linalg.Matrix;
+import org.wpilib.math.linalg.VecBuilder;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.numbers.N1;
+import org.wpilib.math.numbers.N3;
+import org.wpilib.util.Alert;
+import org.wpilib.util.Alert.Level;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.command2.SubsystemBase;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
@@ -43,7 +47,7 @@ public class Vision extends SubsystemBase {
     for (int i = 0; i < inputs.length; i++) {
       disconnectedAlerts[i] =
           new Alert(
-              "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
+              "Vision camera " + Integer.toString(i) + " is disconnected.", Level.MEDIUM);
     }
   }
 
@@ -99,8 +103,8 @@ public class Vision extends SubsystemBase {
         // Check whether to reject pose
         // Translation2d velocity =
         //     new Translation2d(
-        //         drive.getChassisSpeeds().vxMetersPerSecond,
-        //         drive.getChassisSpeeds().vyMetersPerSecond);
+        //         drive.getChassisVelocities().vx,
+        //         drive.getChassisVelocities().vy);
 
         boolean rejectPose =
             observation.tagCount() == 0 // Must have at least one tag
@@ -115,14 +119,14 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth()
                 || (observation.pose().getX() == 0.0 && observation.pose().getY() == 0.0)
-                || (Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond) > (Math.PI * 3.0 / 4.0)
+                || (Math.abs(drive.getChassisVelocities().omega) > (Math.PI * 3.0 / 4.0)
                     && observation.type()
                         == PoseObservationType.MEGATAG_2) // reject if omega too high
                 // || (observation.averageTagDistance() < .45
                 //     && observation.type()
                 //         == PoseObservationType.MEGATAG_1) // instability for MT1 when too near
                 || (observation.type() == PoseObservationType.MEGATAG_2
-                    && DriverStation.isDisabled());
+                    && RobotState.isDisabled());
 
         // Add pose to log
         robotPoses.add(observation.pose());
@@ -153,7 +157,7 @@ public class Vision extends SubsystemBase {
         double thetastdDevFactor =
             Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
 
-        // if (DriverStation.isEnabled()) {
+        // if (RobotState.isEnabled()) {
         // The farther the current estimate is from the pose right now, the less we trust it.
         // It should still allow for correction when we are very off because of the many poses
         // coming in continuously.

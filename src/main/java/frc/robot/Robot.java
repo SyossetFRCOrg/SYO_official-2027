@@ -1,15 +1,19 @@
 package frc.robot;
 
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.wpilib.util.sendable.Sendable;
+import org.wpilib.util.sendable.SendableBuilder;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.shuffleboard.BuiltInWidgets;
+import org.wpilib.shuffleboard.Shuffleboard;
+import org.wpilib.smartdashboard.Field2d;
+import org.wpilib.smartdashboard.SmartDashboard;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
 import frc.robot.autos.AutoChooser;
 import frc.robot.subsystems.Superstructure.SuperState;
 import frc.robot.subsystems.drive.Drive;
@@ -31,7 +35,7 @@ public class Robot extends LoggedRobot {
   private final RobotContainer robotContainer;
 
   public Robot() {
-    FieldConstants.setAlliance(DriverStation.getAlliance().get());
+    FieldConstants.setAlliance(MatchState.getAlliance().get());
     robotContainer = new RobotContainer();
     switch (Constants.currentMode) {
       case REAL:
@@ -63,19 +67,19 @@ public class Robot extends LoggedRobot {
       public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("SwerveDrive");
 
-        builder.addDoubleProperty("Front Left Angle", () -> drive.getModules()[0].getAngle().getRadians() + (FieldConstants.getAlliance() == Alliance.Red ? Math.PI : 0) , null);
+        builder.addDoubleProperty("Front Left Angle", () -> drive.getModules()[0].getAngle().getRadians() + (FieldConstants.getAlliance() == Alliance.RED ? Math.PI : 0) , null);
         builder.addDoubleProperty("Front Left Velocity", () -> drive.getModules()[0].getVelocityMetersPerSec(), null);
 
-        builder.addDoubleProperty("Front Right Angle", () -> drive.getModules()[1].getAngle().getRadians() + (FieldConstants.getAlliance() == Alliance.Red ? Math.PI : 0), null);
+        builder.addDoubleProperty("Front Right Angle", () -> drive.getModules()[1].getAngle().getRadians() + (FieldConstants.getAlliance() == Alliance.RED ? Math.PI : 0), null);
         builder.addDoubleProperty("Front Right Velocity", () -> drive.getModules()[1].getVelocityMetersPerSec(), null);
 
-        builder.addDoubleProperty("Back Left Angle", () -> drive.getModules()[2].getAngle().getRadians() + (FieldConstants.getAlliance() == Alliance.Red ? Math.PI : 0), null);
+        builder.addDoubleProperty("Back Left Angle", () -> drive.getModules()[2].getAngle().getRadians() + (FieldConstants.getAlliance() == Alliance.RED ? Math.PI : 0), null);
         builder.addDoubleProperty("Back Left Velocity", () -> drive.getModules()[2].getVelocityMetersPerSec(), null);
 
-        builder.addDoubleProperty("Back Right Angle", () -> drive.getModules()[3].getAngle().getRadians() + (FieldConstants.getAlliance() == Alliance.Red ? Math.PI : 0), null);
+        builder.addDoubleProperty("Back Right Angle", () -> drive.getModules()[3].getAngle().getRadians() + (FieldConstants.getAlliance() == Alliance.RED ? Math.PI : 0), null);
         builder.addDoubleProperty("Back Right Velocity", () -> drive.getModules()[3].getVelocityMetersPerSec(), null);
 
-        builder.addDoubleProperty("Robot Angle", () -> drive.getRotation().getRadians() + (FieldConstants.getAlliance() == Alliance.Red ? Math.PI : 0), null);
+        builder.addDoubleProperty("Robot Angle", () -> drive.getRotation().getRadians() + (FieldConstants.getAlliance() == Alliance.RED ? Math.PI : 0), null);
       }
     });
 
@@ -112,7 +116,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledPeriodic() {
     autoChooser.update();
-    FieldConstants.setAlliance(DriverStation.getAlliance().get());
+    FieldConstants.setAlliance(MatchState.getAlliance().get());
   }
 
   /**
@@ -150,7 +154,7 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    // FieldConstants.setAlliance(DriverStation.getAlliance().get());
+    // FieldConstants.setAlliance(MatchState.getAlliance().get());
     robotContainer.getSuperstructure().setDesiredSuperStateCommand(SuperState.DRIVING);
     RobotState.getInstance().setAutoAiming(false);
   }
@@ -164,15 +168,15 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void testInit() {
+  public void utilityInit() {
     CommandScheduler.getInstance().cancelAll();
   }
 
    @Override
-  public void testPeriodic() {
+  public void utilityPeriodic() {
   }
 
   @Override
-  public void testExit() {
+  public void utilityExit() {
   }
 }

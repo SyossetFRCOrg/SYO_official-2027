@@ -1,6 +1,6 @@
 package frc.robot.autos;
 
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import org.wpilib.driverstation.Alliance;
 import frc.robot.FieldConstants;
 
 public enum Location {
@@ -49,6 +49,6 @@ public enum Location {
   }
 
   public String getAllianceName() {
-    return FieldConstants.getAlliance() == Alliance.Blue ? blueName : redName;
+    return FieldConstants.getAlliance() == Alliance.BLUE ? blueName : redName;
   }
 }

@@ -1,8 +1,8 @@
 package frc.robot.util;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.command2.button.Trigger;
 
 public class TriggerUtil {
   private TriggerUtil() {}

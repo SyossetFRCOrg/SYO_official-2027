@@ -1,8 +1,8 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.driverstation.GenericHID;
+import org.wpilib.driverstation.XboxController;
+import org.wpilib.command2.Command;
 import java.util.function.BooleanSupplier;
 
 public class ControllerRumbleCommand extends Command {

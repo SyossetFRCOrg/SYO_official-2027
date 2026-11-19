@@ -1,11 +1,11 @@
 package frc.robot;
 
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.units.Units;
+import org.wpilib.driverstation.Alliance;
 import lombok.*;
 
 public class FieldConstants {
@@ -32,12 +32,12 @@ public class FieldConstants {
     // Gets pose based on current alliance
     // -->
     public static Pose3d getHubPose() {
-        return alliance.equals(Alliance.Red) ? redHubPose : blueHubPose;
+        return alliance.equals(Alliance.RED) ? redHubPose : blueHubPose;
     }
 
     public static Pose3d getFerryPose(Translation2d robotPose)
     {
-        if(alliance.equals(Alliance.Red)) 
+        if(alliance.equals(Alliance.RED)) 
         {
             if (robotPose.getDistance(redFerryOutpostPose.getTranslation().toTranslation2d()) <
                 robotPose.getDistance(redFerryDepotPose.getTranslation().toTranslation2d())) 

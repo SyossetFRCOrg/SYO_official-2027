@@ -7,20 +7,24 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableValue;
-import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.networktables.NetworkTableValue;
+import org.wpilib.util.sendable.SendableBuilder;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.shuffleboard.BuiltInWidgets;
+import org.wpilib.shuffleboard.Shuffleboard;
+import org.wpilib.smartdashboard.SendableChooser;
+import org.wpilib.command2.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.Drive;
 
 /**
- * A {@link edu.wpi.first.wpilibj.smartdashboard.SendableChooser} for selecting an autonomous
+ * A {@link org.wpilib.smartdashboard.SendableChooser} for selecting an autonomous
  * program. <br>
  * <br>
  *
@@ -30,7 +34,7 @@ import frc.robot.subsystems.drive.Drive;
  *   <li>Add a new value to {@link Auto}<br>
  *       The name of the value should use screaming snake case
  *   <li>Add a new method in {@link AutoFactory} that returns a {@link
- *       edu.wpi.first.wpilibj2.command.Command}.
+ *       org.wpilib.command2.Command}.
  *   <li>Add a new {@link AutoProgram} to {@link AutoChooser#AUTO_PROGRAMS}.
  *   <li>Implement the autonomous program factory method.
  *   <li>Test, test, and test some more.
@@ -95,7 +99,7 @@ public class AutoChooser extends SendableChooser<Auto> {
   public static AutoChooser create(
       final RobotContainer robotContainer, final Drive drive, final Superstructure superstructure) {
     var autoFactories =
-        Stream.of(DriverStation.Alliance.values())
+        Stream.of(Alliance.values())
             .map(
                 alliance ->
                     Map.entry(
@@ -134,12 +138,12 @@ public class AutoChooser extends SendableChooser<Auto> {
    *
    * <p>The commands for the selected autonomous program are loaded and cached (if not already
    * present) and the selected program is sent to the {@link
-   * edu.wpi.first.wpilibj.shuffleboard.Shuffleboard} under the key <code>Auto/Selected</code>.
+   * org.wpilib.shuffleboard.Shuffleboard} under the key <code>Auto/Selected</code>.
    */
   public void update() {
     var selected = getSelected();
 
-    Stream.of(DriverStation.Alliance.values())
+    Stream.of(Alliance.values())
         .forEach(
             alliance -> {
               commandCache
@@ -151,11 +155,11 @@ public class AutoChooser extends SendableChooser<Auto> {
   /**
    * Reset the caches behind this <code>AutoChooser</code>
    *
-   * @param key Optional {@link edu.wpi.first.networktables.NetworkTable} key. If provided the
+   * @param key Optional {@link org.wpilib.networktables.NetworkTable} key. If provided the
    *     selected value of the entry at this location will also be reset.
    */
   public void reset(final String key) {
-    Stream.of(DriverStation.Alliance.values())
+    Stream.of(Alliance.values())
         .forEach(alliance -> commandCache.get(alliance).clear());
 
     if (key != null) {
@@ -173,7 +177,7 @@ public class AutoChooser extends SendableChooser<Auto> {
   public Optional<Command> getSelectedCommand() {
     var selected = getSelected();
 
-    return DriverStation.getAlliance()
+    return MatchState.getAlliance()
         .map(
             alliance -> {
 
@@ -192,7 +196,7 @@ public class AutoChooser extends SendableChooser<Auto> {
     builder.publishConstString("selected", "%s".formatted(Auto.IDLE));
   }
 
-  private Command loadCommand(final DriverStation.Alliance alliance, final Auto auto) {
+  private Command loadCommand(final Alliance alliance, final Auto auto) {
     var program = programs.get(auto);
 
     System.out.printf("Loading command %s/%s\n", alliance, auto);
@@ -202,17 +206,17 @@ public class AutoChooser extends SendableChooser<Auto> {
 
   private final Map<Auto, AutoProgram> programs;
 
-  private final Map<DriverStation.Alliance, Map<Auto, Command>> commandCache;
+  private final Map<Alliance, Map<Auto, Command>> commandCache;
 
-  private final Map<DriverStation.Alliance, AutoFactory> autoFactories;
+  private final Map<Alliance, AutoFactory> autoFactories;
 
   private AutoChooser(
       final Map<Auto, AutoProgram> programs,
-      final Map<DriverStation.Alliance, AutoFactory> autoFactories) {
+      final Map<Alliance, AutoFactory> autoFactories) {
     this.programs = programs;
     this.autoFactories = autoFactories;
     commandCache =
-        Stream.of(DriverStation.Alliance.values())
+        Stream.of(Alliance.values())
             .map(alliance -> Map.entry(alliance, new HashMap<Auto, Command>()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }

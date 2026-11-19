@@ -1,6 +1,6 @@
 package frc.robot.autos;
 
-import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static org.wpilib.command2.Commands.runOnce;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -8,14 +8,14 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.networktables.NetworkTable;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
+import org.wpilib.command2.SequentialCommandGroup;
+import org.wpilib.command2.WaitCommand;
 import frc.robot.FieldConstants;
 import frc.robot.RobotContainer;
 
@@ -27,7 +27,7 @@ import frc.robot.subsystems.drive.Drive;
 /** A factory for creating autonomous programs for a given {@link Auto} */
 @SuppressWarnings({ "UnusedMethod", "UnusedVariable", "EmptyBlockTag" })
 class AutoFactory {
-  // private final DriverStation.Alliance alliance;
+  // private final Alliance alliance;
 
   // private final RobotContainer robotContainer;
   private final Drive drive;
@@ -455,7 +455,7 @@ class AutoFactory {
     return runOnce(
         () -> {
           // var correctedTraj =
-          // segment.generateTrajectory(new ChassisSpeeds(), new Rotation2d(), null);
+          // segment.generateTrajectory(new ChassisVelocities(), new Rotation2d(), null);
           Pose2d pose = segment.getStartingHolonomicPose().get();
           // Pose2d pose = segment.getPreviewStartingHolonomicPose();
           // getpreviewstartingholonomicpose didn't work
@@ -499,7 +499,7 @@ class AutoFactory {
       trajectoriesLoaded = true;
       @SuppressWarnings("unused")
       var trajectory = new PathPlannerTrajectory(
-          firstSegment, drive.getChassisSpeeds(), drive.getPose().getRotation(), null);
+          firstSegment, drive.getChassisVelocities(), drive.getPose().getRotation(), null);
     }
   }
 

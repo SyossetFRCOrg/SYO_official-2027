@@ -1,6 +1,6 @@
 package frc.robot.autos;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.command2.Command;
 import java.util.function.Function;
 
 /** An autonomous program. */

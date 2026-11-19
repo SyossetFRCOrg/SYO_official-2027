@@ -1,8 +1,8 @@
 package frc.robot.util;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringArrayPublisher;
-import edu.wpi.first.networktables.StringPublisher;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.networktables.StringArrayPublisher;
+import org.wpilib.networktables.StringPublisher;
 import java.util.Arrays;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkInput;

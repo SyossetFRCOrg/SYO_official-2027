@@ -1,11 +1,11 @@
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Radian;
-import static edu.wpi.first.units.Units.Volts;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Distance;
+import static org.wpilib.units.Units.Meter;
+import static org.wpilib.units.Units.MetersPerSecond;
+import static org.wpilib.units.Units.Radian;
+import static org.wpilib.units.Units.Volts;
+import org.wpilib.units.Units;
+import org.wpilib.units.measure.Distance;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -21,31 +21,35 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
-import edu.wpi.first.hal.FRCNetComm.tInstances;
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.wpilib.hardware.hal.FRCNetComm.tInstances;
+import org.wpilib.hardware.hal.FRCNetComm.tResourceType;
+import org.wpilib.hardware.hal.HAL;
+import org.wpilib.math.linalg.Matrix;
+import org.wpilib.math.linalg.VecBuilder;
+import org.wpilib.math.estimator.SwerveDrivePoseEstimator;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Twist2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.math.kinematics.SwerveDriveKinematics;
+import org.wpilib.math.kinematics.SwerveModulePosition;
+import org.wpilib.math.kinematics.SwerveModuleState;
+import org.wpilib.math.numbers.N1;
+import org.wpilib.math.numbers.N3;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.util.Alert;
+import org.wpilib.util.Alert.Level;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.system.Timer;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.command2.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
@@ -61,7 +65,7 @@ public class Drive extends SubsystemBase {
   @SuppressWarnings("unused")
   private double dt;
 
-  private ChassisSpeeds previousChassisSpeeds = new ChassisSpeeds();
+  private ChassisVelocities previousChassisVelocities = new ChassisVelocities();
 
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY = new CANBus("DriveTrain").isNetworkFD() ? 250.0 : 100.0;
@@ -82,7 +86,7 @@ public class Drive extends SubsystemBase {
       new Translation2d(-trackWidthX / 2.0, -trackWidthY / 2.0)
   };
   private SwerveSetpoint currentSetpoint = new SwerveSetpoint(
-      new ChassisSpeeds(),
+      new ChassisVelocities(),
       new SwerveModuleState[] {
           new SwerveModuleState(),
           new SwerveModuleState(),
@@ -114,7 +118,7 @@ public class Drive extends SubsystemBase {
   @Getter private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine sysId;
   private final Alert gyroDisconnectedAlert = new Alert("Disconnected gyro, using kinematics as fallback.",
-      AlertType.kError);
+      Level.HIGH);
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
   private Rotation2d rawGyroRotation = new Rotation2d();
@@ -161,12 +165,12 @@ public class Drive extends SubsystemBase {
     AutoBuilder.configure(
         this::getPose,
         this::setPose,
-        this::getChassisSpeeds,
+        this::getChassisVelocities,
         this::runVelocity,
         new PPHolonomicDriveController(
             new PIDConstants(7.0, 0.0, 0.0), new PIDConstants(7.0, 0.0, 0.0)),
         PP_CONFIG,
-        () -> FieldConstants.getAlliance() == Alliance.Red,
+        () -> FieldConstants.getAlliance() == Alliance.RED,
         this);
 
     Pathfinding.setPathfinder(new LocalADStarAK());
@@ -202,7 +206,7 @@ public class Drive extends SubsystemBase {
     odometryLock.unlock();
 
     // Stop moving when disabled
-    if (DriverStation.isDisabled()) {
+    if (RobotState.isDisabled()) {
       for (var module : modules) {
         module.stop();
       }
@@ -214,7 +218,7 @@ public class Drive extends SubsystemBase {
 
 
     // Log empty setpoint states when disabled
-    if (DriverStation.isDisabled()) {
+    if (RobotState.isDisabled()) {
       Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
       Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
     }
@@ -258,15 +262,15 @@ public class Drive extends SubsystemBase {
    *
    * @param speeds Speeds in meters/sec
    */
-  public void runVelocity(ChassisSpeeds speeds) {
+  public void runVelocity(ChassisVelocities speeds) {
 
     Logger.recordOutput("SwerveStates/desiredspeeds", speeds);
-    dt = Timer.getFPGATimestamp() - currentTime;
-    currentTime = Timer.getFPGATimestamp();
+    dt = Timer.getTimestamp() - currentTime;
+    currentTime = Timer.getTimestamp();
     // the following serves as global translational acceleration limiting
 
-    // Translation2d prevSpeedsTranslation = GeomUtil.toTranslation2d(previousChassisSpeeds);
-    // GeomUtil.toTranslation2d(getChassisSpeeds());
+    // Translation2d prevSpeedsTranslation = GeomUtil.toTranslation2d(previousChassisVelocities);
+    // GeomUtil.toTranslation2d(getChassisVelocities());
 
     // Translation2d desiredSpeedsTranslation = GeomUtil.toTranslation2d(speeds);
 
@@ -285,10 +289,10 @@ public class Drive extends SubsystemBase {
     // // }
 
     // // desiredSpeedsTranslation = prevSpeedsTranslation;
-    // speeds.vxMetersPerSecond = desiredSpeedsTranslation.getX();
-    // speeds.vyMetersPerSecond = desiredSpeedsTranslation.getY();
+    // speeds.vx = desiredSpeedsTranslation.getX();
+    // speeds.vy = desiredSpeedsTranslation.getY();
     // // Calculate module setpoints
-    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+    ChassisVelocities discreteSpeeds = ChassisVelocities.discretize(speeds, 0.02);
     // SwerveModuleState[] setpointStates =
     // kinematics.toSwerveModuleStates(discreteSpeeds);
     currentSetpoint = setpointGenerator.generateSetpoint(
@@ -299,9 +303,9 @@ public class Drive extends SubsystemBase {
 
     // Log unoptimized setpoints and setpoint speeds
     Logger.recordOutput("SwerveStates/Setpoints", currentSetpoint.moduleStates());
-    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", currentSetpoint.chassisSpeeds());
+    Logger.recordOutput("SwerveChassisVelocities/Setpoints", currentSetpoint.chassisSpeeds());
 
-    Logger.recordOutput("SwerveChassisSpeeds/PreviousChassisSPeeds", previousChassisSpeeds);
+    Logger.recordOutput("SwerveChassisVelocities/PreviousChassisSPeeds", previousChassisVelocities);
 
     // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
@@ -311,7 +315,7 @@ public class Drive extends SubsystemBase {
     // Log optimized setpoints (runSetpoint mutates each state)
     Logger.recordOutput("SwerveStates/SetpointsOptimized", currentSetpoint.moduleStates());
 
-    previousChassisSpeeds = currentSetpoint.chassisSpeeds();
+    previousChassisVelocities = currentSetpoint.chassisSpeeds();
   }
 
   /** Runs the drive in a straight line with the specified drive output. */
@@ -323,7 +327,7 @@ public class Drive extends SubsystemBase {
 
   /** Stops the drive. */
   public void stop() {
-    runVelocity(new ChassisSpeeds());
+    runVelocity(new ChassisVelocities());
   }
 
   /**
@@ -379,9 +383,9 @@ public class Drive extends SubsystemBase {
   }
 
   /** Returns the measured chassis speeds of the robot. */
-  @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-  public ChassisSpeeds getChassisSpeeds() {
-    return kinematics.toChassisSpeeds(getModuleStates());
+  @AutoLogOutput(key = "SwerveChassisVelocities/Measured")
+  public ChassisVelocities getChassisVelocities() {
+    return kinematics.toChassisVelocities(getModuleStates());
   }
 
   /** Returns the position of each module in radians. */

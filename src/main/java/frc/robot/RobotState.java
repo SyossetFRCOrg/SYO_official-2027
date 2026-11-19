@@ -1,6 +1,6 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.*;
+import org.wpilib.math.geometry.*;
 import frc.robot.subsystems.drive.TunerConstants;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.swerve.ModuleLimits;
@@ -47,7 +47,7 @@ public class RobotState {
 
   @AutoLogOutput(key = "Swerve/ModuleLimits")
   public ModuleLimits getModuleLimits() {
-    // if (DriverStation.isTeleop()) {
+    // if (RobotState.isTeleop()) {
     if(!isAutoAiming)
     {
       return TunerConstants.moduleLimitsFree;
